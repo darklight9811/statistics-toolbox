@@ -15,7 +15,13 @@ const PERCENTS = [1, 5, 10, 25, 50, 75, 90, 95, 99]
 const TICKS = PERCENTS.map((p) => invNorm(p / 100))
 const percentOf = (z: number) => `${PERCENTS[TICKS.findIndex((t) => Math.abs(t - z) < 1e-9)]}%`
 
-const LABELS: Record<string, string> = { n: 'n', mean: 'média', sd: 'desvio padrão', r: 'correlação (r)' }
+const LABELS: Record<string, string> = {
+  n: 'n',
+  mean: 'média',
+  sd: 'desvio padrão',
+  r: 'correlação (r)',
+  outside: 'fora dos limites 95%',
+}
 const fmt = (x: number) => +x.toFixed(4)
 
 export function NormalProbabilityPage() {
@@ -34,6 +40,8 @@ export function NormalProbabilityPage() {
       result.data &&
       defineChart({
         marks: [
+          lineY(result.data.lower, { x: 'x', y: 'z', stroke: '#f59e0b', strokeWidth: 1.5, strokeDasharray: '5 4' }),
+          lineY(result.data.upper, { x: 'x', y: 'z', stroke: '#f59e0b', strokeWidth: 1.5, strokeDasharray: '5 4' }),
           lineY(result.data.fit, { x: 'x', y: 'z', stroke: '#dc2626', strokeWidth: 2 }),
           dot(result.data.points, { x: 'x', y: 'z', fill: '#4f46e5', r: 3.5 }),
         ],
@@ -74,7 +82,7 @@ export function NormalProbabilityPage() {
           <section className={card}>
             <Chart definition={chart} height={360} ariaLabel="Gráfico probabilístico normal" />
             <p className="mt-1 text-xs text-slate-500">
-              Quanto mais os pontos seguirem a reta vermelha, mais os dados se aproximam de uma distribuição normal.
+              Quanto mais os pontos seguirem a reta vermelha e ficarem dentro das linhas tracejadas (limites de 95%, α = 5%), mais os dados se aproximam de uma distribuição normal.
             </p>
           </section>
           <dl className="grid grid-cols-2 gap-x-4 rounded-xl border border-slate-200 bg-white px-3 py-1 text-xs shadow-sm sm:grid-cols-4">

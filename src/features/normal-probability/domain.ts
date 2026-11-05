@@ -16,6 +16,9 @@ export function invNorm(p: number): number {
   )
 }
 
+/** Two-sided 95% limits (alpha = 5%) around the fitted line: x_p ± 1.96 · sd · sqrt(1 + z²/2) / sqrt(n). */
+const Z95 = 1.959964
+
 export function computeNormalProbability(values: number[]) {
   const n = values.length
   if (n < 3) throw new Error('Insira pelo menos 3 números')
@@ -30,9 +33,16 @@ export function computeNormalProbability(values: number[]) {
   const sxx = x.reduce((a, b) => a + (b - mean) ** 2, 0)
   const r = sxx === 0 ? 0 : sxz / Math.sqrt(sxx * szz) // closer to 1 = closer to normal
   const zs = [points[0].z, points[n - 1].z]
+  const half = (z: number) => (Z95 * sd * Math.sqrt(1 + (z * z) / 2)) / Math.sqrt(n)
+  const grid = Array.from({ length: 41 }, (_, i) => zs[0] + ((zs[1] - zs[0]) * i) / 40)
+  const lower = grid.map((z) => ({ x: mean + sd * z - half(z), z }))
+  const upper = grid.map((z) => ({ x: mean + sd * z + half(z), z }))
+  const outside = points.filter((p) => Math.abs(p.x - (mean + sd * p.z)) > half(p.z)).length
   return {
     points,
     fit: zs.map((z) => ({ x: mean + sd * z, z })),
-    stats: { n, mean, sd, r },
+    lower,
+    upper,
+    stats: { n, mean, sd, r, outside },
   }
 }
