@@ -26,9 +26,21 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         name: 'viewport',
         content: 'width=device-width, initial-scale=1',
       },
+      { title: 'Caixa de ferramentas de estatística' },
       {
-        title: 'Caixa de ferramentas de estatística',
+        name: 'description',
+        content: 'Ferramentas de estatística no navegador: histograma, estatísticas descritivas e tabela de frequências.',
       },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:site_name', content: 'Caixa de ferramentas de estatística' },
+      { property: 'og:locale', content: 'pt_BR' },
+      { property: 'og:title', content: 'Caixa de ferramentas de estatística' },
+      {
+        property: 'og:description',
+        content: 'Cole seus dados e gere um histograma com estatísticas descritivas e tabela de frequências.',
+      },
+      { property: 'og:url', content: 'https://statistics-yamiassu.vercel.app' },
+      { name: 'twitter:card', content: 'summary' },
     ],
     links: [
       {
