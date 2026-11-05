@@ -19,7 +19,7 @@ const LABELS: Record<string, string> = { n: 'n', mean: 'média', sd: 'desvio pad
 const fmt = (x: number) => +x.toFixed(4)
 
 export function NormalProbabilityPage() {
-  const { data, bins, run } = route.useSearch()
+  const { data, bins, name, run } = route.useSearch()
   const navigate = useNavigate({ from: route.id })
 
   const result = useQuery({
@@ -53,7 +53,7 @@ export function NormalProbabilityPage() {
   return (
     <ToolLayout
       title="📉 Gráfico probabilístico normal"
-      value={{ data, bins }}
+      value={{ data, bins, name }}
       runId={run}
       submitLabel="Gerar gráfico"
       onSubmit={(search) => navigate({ search })}

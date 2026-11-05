@@ -1,15 +1,20 @@
 import { Link } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useLiveQuery } from '@tanstack/react-db'
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { runsCollection } from './runs'
 
 export const card = 'rounded-xl border border-slate-200 bg-white p-3 shadow-sm'
 const input =
   'w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
 
-type Value = { data: string; bins: number }
+type Value = { data: string; bins: number; name: string }
 type Search = Value & { run?: number }
+
+const TOOLS = [
+  { to: '/histogram', icon: '📊', label: 'Histograma' },
+  { to: '/normal-probability', icon: '📉', label: 'Gráfico probabilístico normal' },
+] as const
 
 /** Shared page frame for every tool: header, data form and recent entries (shared across tools). */
 export function ToolLayout({
@@ -30,6 +35,13 @@ export function ToolLayout({
   children: ReactNode
 }) {
   const { data: runs } = useLiveQuery((q) => q.from({ r: runsCollection }))
+  const [drawer, setDrawer] = useState(false)
+  useEffect(() => {
+    if (!drawer) return
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setDrawer(false)
+    window.addEventListener('keydown', esc)
+    return () => window.removeEventListener('keydown', esc)
+  }, [drawer])
 
   const form = useForm({
     defaultValues: value,
@@ -38,6 +50,7 @@ export function ToolLayout({
       let id = runId
       if (id !== undefined && runsCollection.has(id)) {
         runsCollection.update(id, (draft) => {
+          draft.name = value.name
           draft.data = value.data
           draft.bins = value.bins
         })
@@ -52,13 +65,59 @@ export function ToolLayout({
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
       <header className="border-b border-slate-200 bg-white">
-        <div className="flex items-center gap-4 px-4 py-2">
-          <Link to="/" className="text-sm text-slate-500 hover:text-indigo-600">
-            ← Ferramentas
-          </Link>
+        <div className="flex items-center gap-3 px-4 py-2">
+          <button
+            type="button"
+            aria-label="Abrir menu"
+            className="rounded-lg border border-slate-200 px-2 py-1 text-slate-600 hover:bg-slate-100"
+            onClick={() => setDrawer(true)}
+          >
+            ☰
+          </button>
           <h1 className="text-lg font-bold tracking-tight">{title}</h1>
         </div>
       </header>
+
+      <div
+        className={`fixed inset-0 z-40 bg-black/30 transition-opacity ${drawer ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        onClick={() => setDrawer(false)}
+      />
+      <nav
+        aria-hidden={!drawer}
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-200 bg-white p-3 shadow-xl transition-transform ${drawer ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Gráficos</h2>
+          <button type="button" aria-label="Fechar menu" className="text-slate-400 hover:text-slate-700" onClick={() => setDrawer(false)}>
+            ×
+          </button>
+        </div>
+        <ul className="flex flex-col gap-1 text-sm">
+          {TOOLS.map((t) => (
+            <li key={t.to}>
+              {/* keeps the open entry (data, bins, name, run) while switching tools */}
+              <Link
+                to={t.to}
+                search={{ data: value.data, bins: value.bins, name: value.name, run: runId }}
+                tabIndex={drawer ? 0 : -1}
+                onClick={() => setDrawer(false)}
+                className="block rounded-lg px-2 py-1.5 hover:bg-indigo-50"
+                activeProps={{ className: 'block rounded-lg bg-indigo-100 px-2 py-1.5 font-semibold text-indigo-700' }}
+              >
+                {t.icon} {t.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link
+          to="/"
+          tabIndex={drawer ? 0 : -1}
+          onClick={() => setDrawer(false)}
+          className="mt-3 block px-2 text-xs text-slate-500 hover:text-indigo-600"
+        >
+          ← Início
+        </Link>
+      </nav>
 
       <div className="flex flex-col gap-3 p-3 lg:flex-row lg:items-start">
         <aside className="w-full shrink-0 lg:sticky lg:top-3 lg:w-80">
@@ -73,6 +132,19 @@ export function ToolLayout({
               }}
               className="flex flex-col gap-2"
             >
+              <form.Field name="name">
+                {(f) => (
+                  <label className="flex flex-col gap-1 text-sm font-medium">
+                    Título
+                    <input
+                      className={input}
+                      placeholder="Sem título"
+                      value={f.state.value}
+                      onChange={(e) => f.handleChange(e.target.value)}
+                    />
+                  </label>
+                )}
+              </form.Field>
               <form.Field name="data">
                 {(f) => (
                   <label className="flex flex-col gap-1 text-sm font-medium">
@@ -124,8 +196,8 @@ export function ToolLayout({
                       type="button"
                       className="text-slate-400 hover:text-indigo-600"
                       onClick={() => {
-                        form.reset({ data: '', bins: 0 })
-                        onSubmit({ data: '', bins: 0, run: undefined })
+                        form.reset({ data: '', bins: 0, name: '' })
+                        onSubmit({ data: '', bins: 0, name: '', run: undefined })
                       }}
                     >
                       + Novo
@@ -147,11 +219,11 @@ export function ToolLayout({
                           r.id === runId ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 bg-slate-50'
                         }`}
                         onClick={() => {
-                          form.reset({ data: r.data, bins: r.bins })
-                          onSubmit({ data: r.data, bins: r.bins, run: r.id })
+                          form.reset({ data: r.data, bins: r.bins, name: r.name ?? '' })
+                          onSubmit({ data: r.data, bins: r.bins, name: r.name ?? '', run: r.id })
                         }}
                       >
-                        {r.data.replace(/\s+/g, ' ')}
+                        {r.name || r.data.replace(/\s+/g, ' ')}
                       </button>
                       <button
                         type="button"
