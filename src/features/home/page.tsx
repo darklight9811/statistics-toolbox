@@ -27,6 +27,16 @@ export function HomePage() {
               Verifique visualmente se os dados seguem uma distribuição normal.
             </div>
           </Link>
+          <Link
+            to="/box-plot"
+            className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
+          >
+            <div className="text-2xl">📦</div>
+            <div className="mt-2 font-semibold">Box-plot</div>
+            <div className="text-sm text-slate-500">
+              Compare a distribuição de várias entradas lado a lado.
+            </div>
+          </Link>
         </div>
       </div>
     </div>

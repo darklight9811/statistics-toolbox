@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BoxPlotRouteImport } from './routes/box-plot'
 import { Route as HistogramRouteImport } from './routes/histogram'
 import { Route as NormalProbabilityRouteImport } from './routes/normal-probability'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BoxPlotRoute = BoxPlotRouteImport.update({
+  id: '/box-plot',
+  path: '/box-plot',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistogramRoute = HistogramRouteImport.update({
@@ -31,30 +37,34 @@ const NormalProbabilityRoute = NormalProbabilityRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/box-plot': typeof BoxPlotRoute
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/box-plot': typeof BoxPlotRoute
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/box-plot': typeof BoxPlotRoute
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/histogram' | '/normal-probability'
+  fullPaths: '/' | '/box-plot' | '/histogram' | '/normal-probability'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/histogram' | '/normal-probability'
-  id: '__root__' | '/' | '/histogram' | '/normal-probability'
+  to: '/' | '/box-plot' | '/histogram' | '/normal-probability'
+  id: '__root__' | '/' | '/box-plot' | '/histogram' | '/normal-probability'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BoxPlotRoute: typeof BoxPlotRoute
   HistogramRoute: typeof HistogramRoute
   NormalProbabilityRoute: typeof NormalProbabilityRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/box-plot': {
+      id: '/box-plot'
+      path: '/box-plot'
+      fullPath: '/box-plot'
+      preLoaderRoute: typeof BoxPlotRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/histogram': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BoxPlotRoute: BoxPlotRoute,
   HistogramRoute: HistogramRoute,
   NormalProbabilityRoute: NormalProbabilityRoute,
 }

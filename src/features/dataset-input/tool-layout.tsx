@@ -9,11 +9,28 @@ const input =
   'w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
 
 type Value = { data: string; bins: number; name: string }
-type Search = Value & { run?: number }
+type Search = Value & { run?: number; sel: number[] }
+
+const actionBtn = 'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium shadow-sm transition active:scale-[0.97]'
+const newBtn = `${actionBtn} bg-indigo-600 text-white hover:bg-indigo-700`
+const clearBtn = `${actionBtn} bg-red-50 text-red-700 ring-1 ring-red-200 hover:bg-red-600 hover:text-white hover:ring-red-600`
+
+const icon = { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
+const PlusIcon = () => (
+  <svg {...icon} aria-hidden="true">
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+)
+const TrashIcon = () => (
+  <svg {...icon} aria-hidden="true">
+    <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6" />
+  </svg>
+)
 
 const TOOLS = [
   { to: '/histogram', icon: '📊', label: 'Histograma' },
   { to: '/normal-probability', icon: '📉', label: 'Gráfico probabilístico normal' },
+  { to: '/box-plot', icon: '📦', label: 'Box-plot' },
 ] as const
 
 /** Shared page frame for every tool: header, data form and recent entries (shared across tools). */
@@ -21,6 +38,8 @@ export function ToolLayout({
   title,
   value,
   runId,
+  selected = [],
+  onToggle,
   showBins = false,
   submitLabel,
   onSubmit,
@@ -29,6 +48,10 @@ export function ToolLayout({
   title: string
   value: Value
   runId?: number
+  /** ids ticked in the recent list; kept in the URL so they survive tool switches */
+  selected?: number[]
+  /** when given, recent entries get a checkbox (multi-entry tools) */
+  onToggle?: (id: number) => void
   showBins?: boolean
   submitLabel: string
   onSubmit: (search: Search) => void
@@ -58,7 +81,7 @@ export function ToolLayout({
         id = Date.now()
         runsCollection.insert({ id, ...value })
       }
-      onSubmit({ ...value, run: id })
+      onSubmit({ ...value, run: id, sel: selected })
     },
   })
 
@@ -98,7 +121,7 @@ export function ToolLayout({
               {/* keeps the open entry (data, bins, name, run) while switching tools */}
               <Link
                 to={t.to}
-                search={{ data: value.data, bins: value.bins, name: value.name, run: runId }}
+                search={{ data: value.data, bins: value.bins, name: value.name, run: runId, sel: selected }}
                 tabIndex={drawer ? 0 : -1}
                 onClick={() => setDrawer(false)}
                 className="block rounded-lg px-2 py-1.5 hover:bg-indigo-50"
@@ -189,38 +212,49 @@ export function ToolLayout({
             </form>
             {runs.length > 0 && (
               <>
-                <div className="mb-1 mt-3 flex items-center justify-between text-xs">
-                  <h3 className="font-semibold uppercase tracking-wide text-slate-500">Recentes</h3>
-                  <span className="flex gap-2">
+                <div className="mb-1 mt-3 flex items-center justify-between">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                    Entradas <span className="font-normal normal-case">({runs.length})</span>
+                  </h3>
+                  <span className="flex gap-1.5">
                     <button
                       type="button"
-                      className="text-slate-400 hover:text-indigo-600"
+                      className={newBtn}
                       onClick={() => {
                         form.reset({ data: '', bins: 0, name: '' })
-                        onSubmit({ data: '', bins: 0, name: '', run: undefined })
+                        onSubmit({ data: '', bins: 0, name: '', run: undefined, sel: selected })
                       }}
                     >
-                      + Novo
+                      <PlusIcon /> Novo
                     </button>
                     <button
                       type="button"
-                      className="text-slate-400 hover:text-red-600"
-                      onClick={() => runsCollection.delete(runs.map((r) => r.id))}
+                      className={clearBtn}
+                      onClick={() => confirm('Remover todas as entradas?') && runsCollection.delete(runs.map((r) => r.id))}
                     >
-                      Limpar
+                      <TrashIcon /> Limpar
                     </button>
                   </span>
                 </div>
-                <ul className="flex flex-col gap-1">
-                  {[...runs].reverse().slice(0, 5).map((r) => (
-                    <li key={r.id} className="flex gap-1">
+                <ul className="flex max-h-72 flex-col gap-1 overflow-y-auto">
+                  {[...runs].reverse().map((r) => (
+                    <li key={r.id} className="flex items-stretch gap-1">
+                      {onToggle && (
+                        <input
+                          type="checkbox"
+                          aria-label="Selecionar entrada"
+                          className="size-4 shrink-0 self-center accent-indigo-600"
+                          checked={selected.includes(r.id)}
+                          onChange={() => onToggle(r.id)}
+                        />
+                      )}
                       <button
                         className={`min-w-0 flex-1 truncate rounded-lg border px-2 py-1 text-left font-mono text-xs transition hover:border-indigo-300 hover:bg-indigo-50 ${
                           r.id === runId ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200 bg-slate-50'
                         }`}
                         onClick={() => {
                           form.reset({ data: r.data, bins: r.bins, name: r.name ?? '' })
-                          onSubmit({ data: r.data, bins: r.bins, name: r.name ?? '', run: r.id })
+                          onSubmit({ data: r.data, bins: r.bins, name: r.name ?? '', run: r.id, sel: selected })
                         }}
                       >
                         {r.name || r.data.replace(/\s+/g, ' ')}

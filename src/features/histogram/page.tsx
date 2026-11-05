@@ -30,7 +30,7 @@ const LABELS: Record<string, string> = {
 const fmt = (x: number) => +x.toFixed(4)
 
 export function HistogramPage() {
-  const { data, bins, name, run } = route.useSearch()
+  const { data, bins, name, run, sel } = route.useSearch()
   const navigate = useNavigate({ from: route.id })
 
   const result = useQuery({
@@ -62,6 +62,7 @@ export function HistogramPage() {
       title="📊 Histograma"
       value={{ data, bins, name }}
       runId={run}
+      selected={sel}
       showBins
       submitLabel="Gerar histograma"
       onSubmit={(search) => navigate({ search })}
