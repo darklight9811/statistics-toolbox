@@ -1,12 +1,12 @@
 import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { Chart } from '@tanstack/charts/react'
 import { barY, defineChart, lineY } from '@tanstack/charts'
 import { scaleBand } from '@tanstack/charts/scales/band'
 import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { parseNumbers } from '../dataset-input/parse'
+import { ExportableChart } from '../dataset-input/exportable-chart'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
 import { computeHistogram } from './domain'
 
@@ -80,7 +80,9 @@ export function HistogramPage() {
       {result.data && chart && (
         <>
           <section className={card}>
-            <Chart definition={chart} height={300} ariaLabel="Histograma" />
+            <ExportableChart
+              stats={Object.entries(result.data.stats).map(([k, v]) => [LABELS[k] ?? k, String(fmt(v))] as const)}
+              title={name} fallbackName="histograma" definition={chart} height={300} ariaLabel="Histograma" />
           </section>
           <dl className="grid grid-cols-2 gap-x-4 rounded-xl border border-slate-200 bg-white px-3 py-1 text-xs shadow-sm sm:grid-cols-3 xl:grid-cols-4">
             {Object.entries(result.data.stats).map(([k, v]) => (

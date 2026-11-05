@@ -16,6 +16,35 @@ export function invNorm(p: number): number {
   )
 }
 
+/** Standard normal CDF; erfc by Numerical Recipes (relative error < 1.2e-7, also in the tails). */
+function normCdf(z: number): number {
+  const x = Math.abs(z) / Math.SQRT2
+  const t = 1 / (1 + 0.5 * x)
+  const erfc =
+    t *
+    Math.exp(
+      -x * x - 1.26551223 +
+        t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))),
+    )
+  return z >= 0 ? 1 - 0.5 * erfc : 0.5 * erfc
+}
+
+/** Anderson-Darling normality test (mean and sd estimated); p-value by D'Agostino & Stephens. */
+function andersonDarling(sorted: number[], mean: number, sd: number) {
+  const n = sorted.length
+  const F = sorted.map((v) => Math.min(1 - 1e-12, Math.max(1e-12, normCdf((v - mean) / sd))))
+  let s = 0
+  for (let i = 0; i < n; i++) s += (2 * i + 1) * (Math.log(F[i]) + Math.log(1 - F[n - 1 - i]))
+  const a2 = -n - s / n
+  const a = a2 * (1 + 0.75 / n + 2.25 / (n * n))
+  const p =
+    a >= 0.6 ? Math.exp(1.2937 - 5.709 * a + 0.0186 * a * a)
+    : a >= 0.34 ? Math.exp(0.9177 - 4.279 * a - 1.38 * a * a)
+    : a >= 0.2 ? 1 - Math.exp(-8.318 + 42.796 * a - 59.938 * a * a)
+    : 1 - Math.exp(-13.436 + 101.14 * a - 223.73 * a * a)
+  return { a2, p: Math.min(1, Math.max(0, p)) }
+}
+
 /** Two-sided 95% limits (alpha = 5%) around the fitted line: x_p ± 1.96 · sd · sqrt(1 + z²/2) / sqrt(n). */
 const Z95 = 1.959964
 
@@ -37,12 +66,13 @@ export function computeNormalProbability(values: number[]) {
   const grid = Array.from({ length: 41 }, (_, i) => zs[0] + ((zs[1] - zs[0]) * i) / 40)
   const lower = grid.map((z) => ({ x: mean + sd * z - half(z), z }))
   const upper = grid.map((z) => ({ x: mean + sd * z + half(z), z }))
+  const ad = sd === 0 ? { a2: 0, p: 0 } : andersonDarling(x, mean, sd)
   const outside = points.filter((p) => Math.abs(p.x - (mean + sd * p.z)) > half(p.z)).length
   return {
     points,
     fit: zs.map((z) => ({ x: mean + sd * z, z })),
     lower,
     upper,
-    stats: { n, mean, sd, r, outside },
+    stats: { n, mean, sd, r, ad: ad.a2, p: ad.p, outside },
   }
 }

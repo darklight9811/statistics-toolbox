@@ -18,9 +18,11 @@ export function computeHistogram(values: number[], bins?: number) {
   const width = (max - min) / k || 1
   const counts = new Array<number>(k).fill(0)
   for (const v of s) counts[Math.min(k - 1, Math.floor((v - min) / width))]++
+  // enough decimals that neighbouring bins never share a label (the chart keys bars by label)
+  const dec = Math.min(12, Math.max(2, Math.ceil(-Math.log10(width)) + 1))
   const out: Bin[] = counts.map((count, i) => {
     const from = min + i * width, to = from + width
-    return { label: `${+from.toFixed(2)}–${+to.toFixed(2)}`, from, to, count, freq: count / n, density: count / n / width, normal: sd ? (n * width * Math.exp(-(((from + width / 2 - mean) / sd) ** 2) / 2)) / (sd * Math.sqrt(2 * Math.PI)) : 0 }
+    return { label: `${+from.toFixed(dec)}–${+to.toFixed(dec)}`, from, to, count, freq: count / n, density: count / n / width, normal: sd ? (n * width * Math.exp(-(((from + width / 2 - mean) / sd) ** 2) / 2)) / (sd * Math.sqrt(2 * Math.PI)) : 0 }
   })
   return {
     bins: out,

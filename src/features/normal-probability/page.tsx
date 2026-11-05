@@ -1,11 +1,11 @@
 import { getRouteApi, useNavigate } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { Chart } from '@tanstack/charts/react'
 import { defineChart, dot, lineY } from '@tanstack/charts'
 import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { parseNumbers } from '../dataset-input/parse'
+import { ExportableChart } from '../dataset-input/exportable-chart'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
 import { computeNormalProbability, invNorm } from './domain'
 
@@ -20,9 +20,12 @@ const LABELS: Record<string, string> = {
   mean: 'média',
   sd: 'desvio padrão',
   r: 'correlação (r)',
+  ad: 'A² (Anderson-Darling)',
+  p: 'p-valor',
   outside: 'fora dos limites 95%',
 }
 const fmt = (x: number) => +x.toFixed(4)
+const show = (k: string, v: number) => (k === 'p' ? (v < 0.001 ? '< 0.001' : v.toFixed(3)) : String(fmt(v)))
 
 export function NormalProbabilityPage() {
   const { data, bins, name, run } = route.useSearch()
@@ -80,7 +83,9 @@ export function NormalProbabilityPage() {
       {result.data && chart && (
         <>
           <section className={card}>
-            <Chart definition={chart} height={360} ariaLabel="Gráfico probabilístico normal" />
+            <ExportableChart
+              stats={Object.entries(result.data.stats).map(([k, v]) => [LABELS[k] ?? k, show(k, v)] as const)}
+              title={name} fallbackName="grafico-probabilistico-normal" definition={chart} height={360} ariaLabel="Gráfico probabilístico normal" />
             <p className="mt-1 text-xs text-slate-500">
               Quanto mais os pontos seguirem a reta vermelha e ficarem dentro das linhas tracejadas (limites de 95%, α = 5%), mais os dados se aproximam de uma distribuição normal.
             </p>
@@ -89,7 +94,7 @@ export function NormalProbabilityPage() {
             {Object.entries(result.data.stats).map(([k, v]) => (
               <div key={k} className="flex justify-between gap-2 border-b border-slate-100 py-0.5">
                 <dt className="truncate text-slate-500">{LABELS[k] ?? k}</dt>
-                <dd className="font-mono font-semibold text-indigo-700">{fmt(v)}</dd>
+                <dd className="font-mono font-semibold text-indigo-700">{show(k, v)}</dd>
               </div>
             ))}
           </dl>
