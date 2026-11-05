@@ -212,7 +212,7 @@ export function ToolLayout({
             </form>
             {runs.length > 0 && (
               <>
-                <div className="mb-1 mt-3 flex items-center justify-between">
+                <div className="mb-3 mt-3 flex items-center justify-between">
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Entradas <span className="font-normal normal-case">({runs.length})</span>
                   </h3>
