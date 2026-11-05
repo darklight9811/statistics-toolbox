@@ -1,10 +1,5 @@
 export type Bin = { label: string; from: number; to: number; count: number; freq: number; density: number; normal: number }
 
-export function parseNumbers(text: string): number[] {
-  // comma is a decimal separator ("3,5"); a trailing comma ("1, 2") still parses as 1 and 2
-  return text.split(/[\s;]+/).filter(Boolean).map((t) => Number(t.replace(',', '.'))).filter(Number.isFinite)
-}
-
 export function computeHistogram(values: number[], bins?: number) {
   const n = values.length
   if (n < 2) throw new Error('Insira pelo menos 2 números')
@@ -18,6 +13,7 @@ export function computeHistogram(values: number[], bins?: number) {
   const variance = s.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1)
   const sd = Math.sqrt(variance)
   const skew = sd === 0 ? 0 : s.reduce((a, b) => a + ((b - mean) / sd) ** 3, 0) / n
+  const kurt = sd === 0 ? 0 : s.reduce((a, b) => a + ((b - mean) / sd) ** 4, 0) / n - 3 // excess kurtosis
   const k = bins || Math.ceil(Math.log2(n) + 1) // Sturges' rule
   const width = (max - min) / k || 1
   const counts = new Array<number>(k).fill(0)
@@ -28,6 +24,6 @@ export function computeHistogram(values: number[], bins?: number) {
   })
   return {
     bins: out,
-    stats: { n, min, max, mean, median: q(0.5), q1: q(0.25), q3: q(0.75), sd, skew, binWidth: width, bins: k },
+    stats: { n, min, max, mean, median: q(0.5), q1: q(0.25), q3: q(0.75), sd, skew, kurt, binWidth: width, bins: k },
   }
 }

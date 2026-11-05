@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HistogramRouteImport } from './routes/histogram'
+import { Route as NormalProbabilityRouteImport } from './routes/normal-probability'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const HistogramRoute = HistogramRouteImport.update({
   path: '/histogram',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NormalProbabilityRoute = NormalProbabilityRouteImport.update({
+  id: '/normal-probability',
+  path: '/normal-probability',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/histogram': typeof HistogramRoute
+  '/normal-probability': typeof NormalProbabilityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/histogram': typeof HistogramRoute
+  '/normal-probability': typeof NormalProbabilityRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/histogram': typeof HistogramRoute
+  '/normal-probability': typeof NormalProbabilityRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/histogram'
+  fullPaths: '/' | '/histogram' | '/normal-probability'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/histogram'
-  id: '__root__' | '/' | '/histogram'
+  to: '/' | '/histogram' | '/normal-probability'
+  id: '__root__' | '/' | '/histogram' | '/normal-probability'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HistogramRoute: typeof HistogramRoute
+  NormalProbabilityRoute: typeof NormalProbabilityRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistogramRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/normal-probability': {
+      id: '/normal-probability'
+      path: '/normal-probability'
+      fullPath: '/normal-probability'
+      preLoaderRoute: typeof NormalProbabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HistogramRoute: HistogramRoute,
+  NormalProbabilityRoute: NormalProbabilityRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

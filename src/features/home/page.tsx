@@ -17,6 +17,16 @@ export function HomePage() {
               Distribuição de frequências e estatísticas descritivas.
             </div>
           </Link>
+          <Link
+            to="/normal-probability"
+            className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
+          >
+            <div className="text-2xl">📉</div>
+            <div className="mt-2 font-semibold">Gráfico probabilístico normal</div>
+            <div className="text-sm text-slate-500">
+              Verifique visualmente se os dados seguem uma distribuição normal.
+            </div>
+          </Link>
         </div>
       </div>
     </div>
