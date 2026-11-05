@@ -4,7 +4,7 @@ import { useForm } from '@tanstack/react-form'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useMemo } from 'react'
 import { Chart } from '@tanstack/charts/react'
-import { barY, defineChart } from '@tanstack/charts'
+import { barY, defineChart, lineY } from '@tanstack/charts'
 import { scaleBand } from '@tanstack/charts/scales/band'
 import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
@@ -57,7 +57,10 @@ export function HistogramPage() {
     () =>
       result.data &&
       defineChart({
-        marks: [barY(result.data.bins, { x: 'label', y: 'count' })],
+        marks: [
+          barY(result.data.bins, { x: 'label', y: 'count' }),
+          lineY(result.data.bins, { x: 'label', y: 'normal', stroke: '#dc2626', strokeWidth: 2, points: true }),
+        ],
         scales: {
           x: { scale: () => scaleBand().padding(0), axis: { label: 'Valor' } },
           y: { scale: scaleLinear, nice: true, grid: true, axis: { label: 'Contagem' } },
@@ -133,20 +136,35 @@ export function HistogramPage() {
             </form>
             {runs.length > 0 && (
               <>
-                <h3 className="mb-1 mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                  Recentes
-                </h3>
+                <div className="mb-1 mt-3 flex items-center justify-between text-xs">
+                  <h3 className="font-semibold uppercase tracking-wide text-slate-500">Recentes</h3>
+                  <button
+                    type="button"
+                    className="text-slate-400 hover:text-red-600"
+                    onClick={() => runsCollection.delete(runs.map((r) => r.id))}
+                  >
+                    Limpar
+                  </button>
+                </div>
                 <ul className="flex flex-col gap-1">
                   {[...runs].reverse().slice(0, 5).map((r) => (
-                    <li key={r.id}>
+                    <li key={r.id} className="flex gap-1">
                       <button
-                        className="w-full truncate rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-left font-mono text-xs transition hover:border-indigo-300 hover:bg-indigo-50"
+                        className="min-w-0 flex-1 truncate rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-left font-mono text-xs transition hover:border-indigo-300 hover:bg-indigo-50"
                         onClick={() => {
                           form.reset({ data: r.data, bins: r.bins })
                           navigate({ search: { data: r.data, bins: r.bins } })
                         }}
                       >
                         {r.data.replace(/\s+/g, ' ')}
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Remover"
+                        className="rounded-lg border border-slate-200 px-2 text-xs text-slate-400 transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                        onClick={() => runsCollection.delete(r.id)}
+                      >
+                        ×
                       </button>
                     </li>
                   ))}

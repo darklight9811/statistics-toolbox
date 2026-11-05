@@ -1,4 +1,4 @@
-export type Bin = { label: string; from: number; to: number; count: number; freq: number; density: number }
+export type Bin = { label: string; from: number; to: number; count: number; freq: number; density: number; normal: number }
 
 export function parseNumbers(text: string): number[] {
   // comma is a decimal separator ("3,5"); a trailing comma ("1, 2") still parses as 1 and 2
@@ -24,7 +24,7 @@ export function computeHistogram(values: number[], bins?: number) {
   for (const v of s) counts[Math.min(k - 1, Math.floor((v - min) / width))]++
   const out: Bin[] = counts.map((count, i) => {
     const from = min + i * width, to = from + width
-    return { label: `${+from.toFixed(2)}–${+to.toFixed(2)}`, from, to, count, freq: count / n, density: count / n / width }
+    return { label: `${+from.toFixed(2)}–${+to.toFixed(2)}`, from, to, count, freq: count / n, density: count / n / width, normal: sd ? (n * width * Math.exp(-(((from + width / 2 - mean) / sd) ** 2) / 2)) / (sd * Math.sqrt(2 * Math.PI)) : 0 }
   })
   return {
     bins: out,
