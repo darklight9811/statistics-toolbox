@@ -1,3 +1,5 @@
+import { normCdf } from '#/shared/normal'
+
 /** Inverse standard normal CDF (Acklam's rational approximation, rel. error < 1.2e-9). */
 export function invNorm(p: number): number {
   const a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239]
@@ -14,19 +16,6 @@ export function invNorm(p: number): number {
     ((((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q) /
     (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1)
   )
-}
-
-/** Standard normal CDF; erfc by Numerical Recipes (relative error < 1.2e-7, also in the tails). */
-function normCdf(z: number): number {
-  const x = Math.abs(z) / Math.SQRT2
-  const t = 1 / (1 + 0.5 * x)
-  const erfc =
-    t *
-    Math.exp(
-      -x * x - 1.26551223 +
-        t * (1.00002368 + t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 + t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 + t * (-0.82215223 + t * 0.17087277)))))))),
-    )
-  return z >= 0 ? 1 - 0.5 * erfc : 0.5 * erfc
 }
 
 /** Anderson-Darling normality test (mean and sd estimated); p-value by D'Agostino & Stephens. */

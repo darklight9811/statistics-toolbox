@@ -37,6 +37,16 @@ export function HomePage() {
               Compare a distribuição de várias entradas lado a lado.
             </div>
           </Link>
+          <Link
+            to="/probability-distribution"
+            className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition hover:border-indigo-300 hover:shadow-md"
+          >
+            <div className="text-2xl">🔔</div>
+            <div className="mt-2 font-semibold">Distribuição de probabilidade</div>
+            <div className="text-sm text-slate-500">
+              Densidade observada, curva normal ajustada e regra 68-95-99,7.
+            </div>
+          </Link>
         </div>
       </div>
     </div>

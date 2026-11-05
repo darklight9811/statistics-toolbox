@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoxPlotRouteImport } from './routes/box-plot'
 import { Route as HistogramRouteImport } from './routes/histogram'
 import { Route as NormalProbabilityRouteImport } from './routes/normal-probability'
+import { Route as ProbabilityDistributionRouteImport } from './routes/probability-distribution'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const NormalProbabilityRoute = NormalProbabilityRouteImport.update({
   path: '/normal-probability',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProbabilityDistributionRoute = ProbabilityDistributionRouteImport.update({
+  id: '/probability-distribution',
+  path: '/probability-distribution',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/box-plot': typeof BoxPlotRoute
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
+  '/probability-distribution': typeof ProbabilityDistributionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/box-plot': typeof BoxPlotRoute
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
+  '/probability-distribution': typeof ProbabilityDistributionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,30 @@ export interface FileRoutesById {
   '/box-plot': typeof BoxPlotRoute
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
+  '/probability-distribution': typeof ProbabilityDistributionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/box-plot' | '/histogram' | '/normal-probability'
+  fullPaths:
+    | '/'
+    | '/box-plot'
+    | '/histogram'
+    | '/normal-probability'
+    | '/probability-distribution'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/box-plot' | '/histogram' | '/normal-probability'
-  id: '__root__' | '/' | '/box-plot' | '/histogram' | '/normal-probability'
+  to:
+    | '/'
+    | '/box-plot'
+    | '/histogram'
+    | '/normal-probability'
+    | '/probability-distribution'
+  id:
+    | '__root__'
+    | '/'
+    | '/box-plot'
+    | '/histogram'
+    | '/normal-probability'
+    | '/probability-distribution'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +92,7 @@ export interface RootRouteChildren {
   BoxPlotRoute: typeof BoxPlotRoute
   HistogramRoute: typeof HistogramRoute
   NormalProbabilityRoute: typeof NormalProbabilityRoute
+  ProbabilityDistributionRoute: typeof ProbabilityDistributionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NormalProbabilityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/probability-distribution': {
+      id: '/probability-distribution'
+      path: '/probability-distribution'
+      fullPath: '/probability-distribution'
+      preLoaderRoute: typeof ProbabilityDistributionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   BoxPlotRoute: BoxPlotRoute,
   HistogramRoute: HistogramRoute,
   NormalProbabilityRoute: NormalProbabilityRoute,
+  ProbabilityDistributionRoute: ProbabilityDistributionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

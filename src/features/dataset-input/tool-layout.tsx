@@ -31,6 +31,7 @@ const TOOLS = [
   { to: '/histogram', icon: '📊', label: 'Histograma' },
   { to: '/normal-probability', icon: '📉', label: 'Gráfico probabilístico normal' },
   { to: '/box-plot', icon: '📦', label: 'Box-plot' },
+  { to: '/probability-distribution', icon: '🔔', label: 'Distribuição de probabilidade' },
 ] as const
 
 /** Shared page frame for every tool: header, data form and recent entries (shared across tools). */
