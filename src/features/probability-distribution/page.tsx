@@ -6,6 +6,7 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { ExportableChart } from '../dataset-input/exportable-chart'
 import { parseNumbers } from '../dataset-input/parse'
+import { useEntryValue } from '../dataset-input/runs'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
 import { computeDistribution, computeRange } from './domain'
 
@@ -27,7 +28,8 @@ const field =
   'w-28 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
 
 export function ProbabilityDistributionPage() {
-  const { data, bins, name, run, sel } = route.useSearch()
+  const { run, sel } = route.useSearch()
+  const { data, bins, name } = useEntryValue(run)
   const navigate = useNavigate({ from: route.id })
 
   const result = useQuery({

@@ -6,6 +6,7 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { parseNumbers } from '../dataset-input/parse'
 import { ExportableChart } from '../dataset-input/exportable-chart'
+import { useEntryValue } from '../dataset-input/runs'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
 import { computeNormalProbability, invNorm } from './domain'
 
@@ -28,7 +29,8 @@ const fmt = (x: number) => +x.toFixed(4)
 const show = (k: string, v: number) => (k === 'p' ? (v < 0.001 ? '< 0.001' : v.toFixed(3)) : String(fmt(v)))
 
 export function NormalProbabilityPage() {
-  const { data, bins, name, run, sel } = route.useSearch()
+  const { run, sel } = route.useSearch()
+  const { data, bins, name } = useEntryValue(run)
   const navigate = useNavigate({ from: route.id })
 
   const result = useQuery({

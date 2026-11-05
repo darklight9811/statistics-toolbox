@@ -8,7 +8,7 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { ExportableChart } from '../dataset-input/exportable-chart'
 import { parseNumbers } from '../dataset-input/parse'
-import { runsCollection } from '../dataset-input/runs'
+import { runsCollection, useEntryValue } from '../dataset-input/runs'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
 import { computeBoxPlot, type Group } from './domain'
 
@@ -17,7 +17,8 @@ const route = getRouteApi('/box-plot')
 const fmt = (x: number) => +x.toFixed(4)
 
 export function BoxPlotPage() {
-  const { data, bins, name, run, sel } = route.useSearch()
+  const { run, sel } = route.useSearch()
+  const { data, bins, name } = useEntryValue(run)
   const navigate = useNavigate({ from: route.id })
   const { data: runs } = useLiveQuery((q) => q.from({ r: runsCollection }))
 

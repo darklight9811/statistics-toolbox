@@ -7,6 +7,7 @@ import { scaleLinear } from '@tanstack/charts/scales/linear'
 import { tooltip } from '@tanstack/charts/tooltip'
 import { parseNumbers } from '../dataset-input/parse'
 import { ExportableChart } from '../dataset-input/exportable-chart'
+import { useEntryValue } from '../dataset-input/runs'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
 import { computeHistogram } from './domain'
 
@@ -30,7 +31,8 @@ const LABELS: Record<string, string> = {
 const fmt = (x: number) => +x.toFixed(4)
 
 export function HistogramPage() {
-  const { data, bins, name, run, sel } = route.useSearch()
+  const { run, sel } = route.useSearch()
+  const { data, bins, name } = useEntryValue(run)
   const navigate = useNavigate({ from: route.id })
 
   const result = useQuery({

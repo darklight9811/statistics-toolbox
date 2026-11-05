@@ -9,7 +9,7 @@ const input =
   'w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
 
 type Value = { data: string; bins: number; name: string }
-type Search = Value & { run?: number; sel: number[] }
+type Search = { run?: number; sel: number[] }
 
 const actionBtn = 'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium shadow-sm transition active:scale-[0.97]'
 const newBtn = `${actionBtn} bg-indigo-600 text-white hover:bg-indigo-700`
@@ -82,9 +82,16 @@ export function ToolLayout({
         id = Date.now()
         runsCollection.insert({ id, ...value })
       }
-      onSubmit({ ...value, run: id, sel: selected })
+      onSubmit({ run: id, sel: selected })
     },
   })
+
+  // the entry may load after first render (localStorage) or change from outside: sync the form
+  const loaded = runs.some((r) => r.id === runId)
+  useEffect(() => {
+    form.reset(value)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runId, loaded])
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
@@ -119,10 +126,10 @@ export function ToolLayout({
         <ul className="flex flex-col gap-1 text-sm">
           {TOOLS.map((t) => (
             <li key={t.to}>
-              {/* keeps the open entry (data, bins, name, run) while switching tools */}
+              {/* keeps the open entry while switching tools */}
               <Link
                 to={t.to}
-                search={{ data: value.data, bins: value.bins, name: value.name, run: runId, sel: selected }}
+                search={{ run: runId, sel: selected }}
                 tabIndex={drawer ? 0 : -1}
                 onClick={() => setDrawer(false)}
                 className="block rounded-lg px-2 py-1.5 hover:bg-indigo-50"
@@ -223,7 +230,7 @@ export function ToolLayout({
                       className={newBtn}
                       onClick={() => {
                         form.reset({ data: '', bins: 0, name: '' })
-                        onSubmit({ data: '', bins: 0, name: '', run: undefined, sel: selected })
+                        onSubmit({ run: undefined, sel: selected })
                       }}
                     >
                       <PlusIcon /> Novo
@@ -255,7 +262,7 @@ export function ToolLayout({
                         }`}
                         onClick={() => {
                           form.reset({ data: r.data, bins: r.bins, name: r.name ?? '' })
-                          onSubmit({ data: r.data, bins: r.bins, name: r.name ?? '', run: r.id, sel: selected })
+                          onSubmit({ run: r.id, sel: selected })
                         }}
                       >
                         {r.name || r.data.replace(/\s+/g, ' ')}
