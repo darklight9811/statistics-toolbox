@@ -18,6 +18,13 @@ const percentOf = (z: number) => `${PERCENTS[TICKS.findIndex((t) => Math.abs(t -
 
 const LABELS: Record<string, string> = {
   n: 'n',
+  min: 'm�nimo',
+  max: 'm�ximo',
+  median: 'mediana',
+  q1: 'Q1',
+  q3: 'Q3',
+  skew: 'assimetria',
+  kurt: 'curtose',
   mean: 'média',
   sd: 'desvio padrão',
   r: 'correlação (r)',

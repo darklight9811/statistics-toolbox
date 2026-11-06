@@ -205,7 +205,9 @@ export function ToolLayout({
                         min={0}
                         max={100}
                         className={input}
-                        value={f.state.value}
+                        placeholder="0"
+                        // 0 (auto) shows as empty so the field can be cleared while typing
+                        value={f.state.value || ''}
                         onChange={(e) =>
                           f.handleChange(Math.max(0, Math.min(100, Math.trunc(+e.target.value) || 0)))
                         }

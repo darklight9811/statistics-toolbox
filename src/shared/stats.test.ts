@@ -46,6 +46,11 @@ describe('histogram and normal probability', () => {
     const h = computeHistogram([1, 2, 2, 3, 3, 3, 4, 4, 5])
     expect(h.bins.reduce((a, b) => a + b.count, 0)).toBe(9)
   })
+  it('shares the histogram stats', () => {
+    const v = [1, 2, 2, 3, 3, 3, 4, 4, 5]
+    const { n, min, max, mean, median, q1, q3, sd, skew, kurt } = computeHistogram(v).stats
+    expect(computeNormalProbability(v).stats).toMatchObject({ n, min, max, mean, median, q1, q3, sd, skew, kurt })
+  })
   it('needs at least 3 numbers', () => {
     expect(() => computeNormalProbability([1, 2])).toThrow()
   })

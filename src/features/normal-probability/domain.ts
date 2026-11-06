@@ -45,6 +45,12 @@ export function computeNormalProbability(values: number[]) {
   const points = x.map((v, i) => ({ x: v, p: (i + 1 - 0.375) / (n + 0.25), z: invNorm((i + 1 - 0.375) / (n + 0.25)) }))
   const mean = x.reduce((a, b) => a + b, 0) / n
   const sd = Math.sqrt(x.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1))
+  const q = (p: number) => {
+    const i = (n - 1) * p, lo = Math.floor(i)
+    return x[lo] + (x[Math.ceil(i)] - x[lo]) * (i - lo)
+  }
+  const skew = sd === 0 ? 0 : x.reduce((a, b) => a + ((b - mean) / sd) ** 3, 0) / n
+  const kurt = sd === 0 ? 0 : x.reduce((a, b) => a + ((b - mean) / sd) ** 4, 0) / n - 3 // excess kurtosis
   const zMean = points.reduce((a, p) => a + p.z, 0) / n
   const sxz = points.reduce((a, p) => a + (p.x - mean) * (p.z - zMean), 0)
   const szz = points.reduce((a, p) => a + (p.z - zMean) ** 2, 0)
@@ -62,6 +68,6 @@ export function computeNormalProbability(values: number[]) {
     fit: zs.map((z) => ({ x: mean + sd * z, z })),
     lower,
     upper,
-    stats: { n, mean, sd, r, ad: ad.a2, p: ad.p, outside },
+    stats: { n, min: x[0], max: x[n - 1], mean, median: q(0.5), q1: q(0.25), q3: q(0.75), sd, skew, kurt, r, ad: ad.a2, p: ad.p, outside },
   }
 }
