@@ -8,25 +8,11 @@ import { ExportableChart } from '../dataset-input/exportable-chart'
 import { parseNumbers } from '../dataset-input/parse'
 import { useEntryValue } from '../dataset-input/runs'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
+import { StatsCard } from '../stats-card/stats-card'
+import { statRows } from '../stats-card/catalog'
 import { computeDistribution, computeRange } from './domain'
 
 const route = getRouteApi('/probability-distribution')
-
-const LABELS: Record<string, string> = {
-  n: 'n',
-  min: 'mínimo',
-  max: 'máximo',
-  mean: 'média (μ)',
-  median: 'mediana',
-  q1: 'Q1',
-  q3: 'Q3',
-  sd: 'desvio padrão (σ)',
-  variance: 'variância',
-  skew: 'assimetria',
-  kurt: 'curtose',
-  binWidth: 'largura da classe',
-  bins: 'nº de classes',
-}
 
 const fmt = (x: number) => +x.toFixed(4)
 const pct = (x: number) => `${(x * 100).toFixed(2)}%`
@@ -82,7 +68,7 @@ export function ProbabilityDistributionPage() {
     [result.data, region],
   )
 
-  const stats = Object.entries(result.data?.stats ?? {}).map(([k, v]) => [LABELS[k] ?? k, String(fmt(v))] as const)
+  const stats = statRows(result.data?.stats ?? {})
 
   return (
     <ToolLayout
@@ -155,14 +141,7 @@ export function ProbabilityDistributionPage() {
             {range instanceof Error && <p className="mt-2 text-sm text-red-600">{range.message}</p>}
             {!range && <p className="mt-2 text-xs text-slate-500">Preencha um ou ambos os limites; a área aparece em verde no gráfico.</p>}
           </section>
-          <dl className="grid grid-cols-2 gap-x-4 rounded-xl border border-slate-200 bg-white px-3 py-1 text-xs shadow-sm sm:grid-cols-3 xl:grid-cols-6">
-            {stats.map(([label, value]) => (
-              <div key={label} className="flex justify-between gap-2 border-b border-slate-100 py-0.5">
-                <dt className="truncate text-slate-500">{label}</dt>
-                <dd className="font-mono font-semibold text-indigo-700">{value}</dd>
-              </div>
-            ))}
-          </dl>
+          {result.data && <StatsCard stats={result.data.stats} run={run} />}
           <section className={`${card} overflow-x-auto p-0`}>
             <table className="w-full text-sm">
               <thead className="bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">

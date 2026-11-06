@@ -1,3 +1,6 @@
+import { STATS } from '#/features/stats-card/catalog'
+import { computeAllStats, statExample } from '#/features/stats-card/examples'
+import katex from 'katex'
 import { describe, expect, it } from 'vitest'
 import { computeBoxPlot } from '#/features/box-plot/domain'
 import { computeDistribution, computeRange } from '#/features/probability-distribution/domain'
@@ -53,5 +56,21 @@ describe('histogram and normal probability', () => {
   })
   it('needs at least 3 numbers', () => {
     expect(() => computeNormalProbability([1, 2])).toThrow()
+  })
+})
+
+describe('stat examples', () => {
+  const v = [1, 2, 2, 3, 3, 3, 4, 4, 5]
+  const all = computeAllStats(v, 0)!
+  it('every catalog stat has an example ending in its computed value', () => {
+    for (const k of Object.keys(STATS)) expect(statExample(k, all), k).toBeTruthy()
+    expect(statExample('mean', all)).toContain(`= ${+all.mean.toFixed(4)}`)
+    expect(statExample('q1', all)).toContain(`${+all.q1.toFixed(4)}`)
+  })
+  it('formulas and examples are valid LaTeX', () => {
+    for (const [k, m] of Object.entries(STATS)) {
+      expect(() => katex.renderToString(m.formula, { throwOnError: true }), k).not.toThrow()
+      for (const line of statExample(k, all)!.split('\n')) expect(() => katex.renderToString(line, { throwOnError: true }), `${k}: ${line}`).not.toThrow()
+    }
   })
 })

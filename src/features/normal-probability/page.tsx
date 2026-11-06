@@ -8,6 +8,8 @@ import { parseNumbers } from '../dataset-input/parse'
 import { ExportableChart } from '../dataset-input/exportable-chart'
 import { useEntryValue } from '../dataset-input/runs'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
+import { StatsCard } from '../stats-card/stats-card'
+import { statRows } from '../stats-card/catalog'
 import { computeNormalProbability, invNorm } from './domain'
 
 const route = getRouteApi('/normal-probability')
@@ -16,24 +18,6 @@ const PERCENTS = [1, 5, 10, 25, 50, 75, 90, 95, 99]
 const TICKS = PERCENTS.map((p) => invNorm(p / 100))
 const percentOf = (z: number) => `${PERCENTS[TICKS.findIndex((t) => Math.abs(t - z) < 1e-9)]}%`
 
-const LABELS: Record<string, string> = {
-  n: 'n',
-  min: 'mínimo',
-  max: 'máximo',
-  median: 'mediana',
-  q1: 'Q1',
-  q3: 'Q3',
-  skew: 'assimetria',
-  kurt: 'curtose',
-  mean: 'média',
-  sd: 'desvio padrão',
-  r: 'correlação (r)',
-  ad: 'A² (Anderson-Darling)',
-  p: 'p-valor',
-  outside: 'fora dos limites 95%',
-}
-const fmt = (x: number) => +x.toFixed(4)
-const show = (k: string, v: number) => (k === 'p' ? (v < 0.001 ? '< 0.001' : v.toFixed(3)) : String(fmt(v)))
 
 export function NormalProbabilityPage() {
   const { run, sel } = route.useSearch()
@@ -94,20 +78,13 @@ export function NormalProbabilityPage() {
         <>
           <section className={card}>
             <ExportableChart
-              stats={Object.entries(result.data.stats).map(([k, v]) => [LABELS[k] ?? k, show(k, v)] as const)}
+              stats={statRows(result.data.stats)}
               title={name} fallbackName="grafico-probabilistico-normal" definition={chart} height={360} ariaLabel="Gráfico probabilístico normal" />
             <p className="mt-1 text-xs text-slate-500">
               Quanto mais os pontos seguirem a reta vermelha e ficarem dentro das linhas tracejadas (limites de 95%, α = 5%), mais os dados se aproximam de uma distribuição normal.
             </p>
           </section>
-          <dl className="grid grid-cols-2 gap-x-4 rounded-xl border border-slate-200 bg-white px-3 py-1 text-xs shadow-sm sm:grid-cols-4">
-            {Object.entries(result.data.stats).map(([k, v]) => (
-              <div key={k} className="flex justify-between gap-2 border-b border-slate-100 py-0.5">
-                <dt className="truncate text-slate-500">{LABELS[k] ?? k}</dt>
-                <dd className="font-mono font-semibold text-indigo-700">{show(k, v)}</dd>
-              </div>
-            ))}
-          </dl>
+          <StatsCard stats={result.data.stats} run={run} />
         </>
       )}
     </ToolLayout>

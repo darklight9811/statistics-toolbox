@@ -72,6 +72,7 @@ src/
 │   ├── normal-probability.tsx    → features/normal-probability
 │   ├── box-plot.tsx              → features/box-plot
 │   └── probability-distribution.tsx → features/probability-distribution
+│   └── glossary.index.tsx / glossary.$stat.tsx → features/stats-card/stat-page (docs section: index + one page per statistic, search: run)
 ├── features/
 │   ├── dataset-input/            SHARED slice used by every tool
 │   │   ├── tool-layout.tsx       ToolLayout: header, ☰ drawer (tool switcher), data form, entries list
@@ -79,6 +80,7 @@ src/
 │   │   ├── search.ts             zod searchSchema: { run?, sel[] }
 │   │   ├── parse.ts              parseNumbers (separators: space, ; newline; comma = decimal)
 │   │   └── exportable-chart.tsx  PNG/PDF export (SVG → canvas → PNG; hand-built single-page PDF)
+│   ├── stats-card/               SHARED: catalog.ts (label, what, use, how-to for every stat), StatsCard + StatHint (tooltip, links to the stat page), docs-layout.tsx + stat-page.tsx (documentation section) + examples.ts (worked example from the open entry)
 │   ├── histogram/                domain.ts + page.tsx
 │   ├── normal-probability/       domain.ts + page.tsx
 │   ├── box-plot/                 domain.ts + page.tsx
@@ -131,6 +133,10 @@ src/
 | Normality test | Anderson-Darling A², p-value by D'Agostino & Stephens |
 | Normal CDF | Numerical Recipes `erfc` approximation |
 | Box-plot whiskers | 1.5 × IQR (Tukey fences) |
+
+### Statistics glossary
+
+Add a statistic once in `stats-card/catalog.ts` (label, `what`, `use`, `help`) and, if it can be exemplified, a `case` in `stats-card/examples.ts`. It then gets a tooltip wherever `StatsCard`/`StatHint` shows it, its group in `GROUPS` (docs sidebar and index), and its own page `/glossary/<key>?run=<entry id>`.
 
 ### Gotchas
 

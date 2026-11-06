@@ -9,24 +9,11 @@ import { parseNumbers } from '../dataset-input/parse'
 import { ExportableChart } from '../dataset-input/exportable-chart'
 import { useEntryValue } from '../dataset-input/runs'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
+import { StatsCard } from '../stats-card/stats-card'
+import { statRows } from '../stats-card/catalog'
 import { computeHistogram } from './domain'
 
 const route = getRouteApi('/histogram')
-
-const LABELS: Record<string, string> = {
-  n: 'n',
-  min: 'mínimo',
-  max: 'máximo',
-  mean: 'média',
-  median: 'mediana',
-  q1: 'Q1',
-  q3: 'Q3',
-  sd: 'desvio padrão',
-  skew: 'assimetria',
-  kurt: 'curtose',
-  binWidth: 'largura da classe',
-  bins: 'nº de classes',
-}
 
 const fmt = (x: number) => +x.toFixed(4)
 
@@ -84,17 +71,10 @@ export function HistogramPage() {
         <>
           <section className={card}>
             <ExportableChart
-              stats={Object.entries(result.data.stats).map(([k, v]) => [LABELS[k] ?? k, String(fmt(v))] as const)}
+              stats={statRows(result.data.stats)}
               title={name} fallbackName="histograma" definition={chart} height={300} ariaLabel="Histograma" />
           </section>
-          <dl className="grid grid-cols-2 gap-x-4 rounded-xl border border-slate-200 bg-white px-3 py-1 text-xs shadow-sm sm:grid-cols-3 xl:grid-cols-4">
-            {Object.entries(result.data.stats).map(([k, v]) => (
-              <div key={k} className="flex justify-between gap-2 border-b border-slate-100 py-0.5">
-                <dt className="truncate text-slate-500">{LABELS[k] ?? k}</dt>
-                <dd className="font-mono font-semibold text-indigo-700">{fmt(v)}</dd>
-              </div>
-            ))}
-          </dl>
+          <StatsCard stats={result.data.stats} run={run} />
           <section className={`${card} overflow-x-auto p-0`}>
             <table className="w-full text-sm">
               <thead className="bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">

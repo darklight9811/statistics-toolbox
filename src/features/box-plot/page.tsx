@@ -10,6 +10,7 @@ import { ExportableChart } from '../dataset-input/exportable-chart'
 import { parseNumbers } from '../dataset-input/parse'
 import { runsCollection, useEntryValue } from '../dataset-input/runs'
 import { ToolLayout, card } from '../dataset-input/tool-layout'
+import { StatHint } from '../stats-card/stat-hint'
 import { computeBoxPlot, type Group } from './domain'
 
 const route = getRouteApi('/box-plot')
@@ -100,8 +101,9 @@ export function BoxPlotPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">
                 <tr>
-                  {['Entrada', 'n', 'Mín', 'Q1', 'Mediana', 'Q3', 'Máx', 'IQR', 'Média', 'Atípicos'].map((h) => (
-                    <th key={h} className="px-3 py-1.5">{h}</th>
+                  <th className="px-3 py-1.5">Entrada</th>
+                  {[['n', 'n'], ['min', 'Mín'], ['q1', 'Q1'], ['median', 'Mediana'], ['q3', 'Q3'], ['max', 'Máx'], ['iqr', 'IQR'], ['mean', 'Média'], ['outliers', 'Atípicos']].map(([k, h]) => (
+                    <th key={k} className="px-3 py-1.5"><StatHint k={k} run={run ?? sel[0]}>{h}</StatHint></th>
                   ))}
                 </tr>
               </thead>

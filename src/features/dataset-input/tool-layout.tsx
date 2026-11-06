@@ -3,6 +3,7 @@ import { useForm } from '@tanstack/react-form'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useEffect, useState, type ReactNode } from 'react'
 import { runsCollection } from './runs'
+import { TOOLS } from './tools'
 
 export const card = 'rounded-xl border border-slate-200 bg-white p-3 shadow-sm'
 const input =
@@ -26,13 +27,6 @@ const TrashIcon = () => (
     <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 10v6M14 10v6" />
   </svg>
 )
-
-const TOOLS = [
-  { to: '/histogram', icon: '📊', label: 'Histograma' },
-  { to: '/normal-probability', icon: '📉', label: 'Gráfico probabilístico normal' },
-  { to: '/box-plot', icon: '📦', label: 'Box-plot' },
-  { to: '/probability-distribution', icon: '🔔', label: 'Distribuição de probabilidade' },
-] as const
 
 /** Shared page frame for every tool: header, data form and recent entries (shared across tools). */
 export function ToolLayout({

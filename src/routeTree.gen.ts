@@ -14,6 +14,8 @@ import { Route as BoxPlotRouteImport } from './routes/box-plot'
 import { Route as HistogramRouteImport } from './routes/histogram'
 import { Route as NormalProbabilityRouteImport } from './routes/normal-probability'
 import { Route as ProbabilityDistributionRouteImport } from './routes/probability-distribution'
+import { Route as GlossaryIndexRouteImport } from './routes/glossary.index'
+import { Route as GlossaryStatRouteImport } from './routes/glossary.$stat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +42,16 @@ const ProbabilityDistributionRoute = ProbabilityDistributionRouteImport.update({
   path: '/probability-distribution',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GlossaryIndexRoute = GlossaryIndexRouteImport.update({
+  id: '/glossary/',
+  path: '/glossary/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GlossaryStatRoute = GlossaryStatRouteImport.update({
+  id: '/glossary/$stat',
+  path: '/glossary/$stat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +59,8 @@ export interface FileRoutesByFullPath {
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
   '/probability-distribution': typeof ProbabilityDistributionRoute
+  '/glossary/$stat': typeof GlossaryStatRoute
+  '/glossary/': typeof GlossaryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +68,8 @@ export interface FileRoutesByTo {
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
   '/probability-distribution': typeof ProbabilityDistributionRoute
+  '/glossary/$stat': typeof GlossaryStatRoute
+  '/glossary': typeof GlossaryIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +78,8 @@ export interface FileRoutesById {
   '/histogram': typeof HistogramRoute
   '/normal-probability': typeof NormalProbabilityRoute
   '/probability-distribution': typeof ProbabilityDistributionRoute
+  '/glossary/$stat': typeof GlossaryStatRoute
+  '/glossary/': typeof GlossaryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,6 +89,8 @@ export interface FileRouteTypes {
     | '/histogram'
     | '/normal-probability'
     | '/probability-distribution'
+    | '/glossary/$stat'
+    | '/glossary/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -78,6 +98,8 @@ export interface FileRouteTypes {
     | '/histogram'
     | '/normal-probability'
     | '/probability-distribution'
+    | '/glossary/$stat'
+    | '/glossary'
   id:
     | '__root__'
     | '/'
@@ -85,6 +107,8 @@ export interface FileRouteTypes {
     | '/histogram'
     | '/normal-probability'
     | '/probability-distribution'
+    | '/glossary/$stat'
+    | '/glossary/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -93,6 +117,8 @@ export interface RootRouteChildren {
   HistogramRoute: typeof HistogramRoute
   NormalProbabilityRoute: typeof NormalProbabilityRoute
   ProbabilityDistributionRoute: typeof ProbabilityDistributionRoute
+  GlossaryStatRoute: typeof GlossaryStatRoute
+  GlossaryIndexRoute: typeof GlossaryIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -132,6 +158,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProbabilityDistributionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/glossary/': {
+      id: '/glossary/'
+      path: '/glossary'
+      fullPath: '/glossary/'
+      preLoaderRoute: typeof GlossaryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/glossary/$stat': {
+      id: '/glossary/$stat'
+      path: '/glossary/$stat'
+      fullPath: '/glossary/$stat'
+      preLoaderRoute: typeof GlossaryStatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -141,6 +181,8 @@ const rootRouteChildren: RootRouteChildren = {
   HistogramRoute: HistogramRoute,
   NormalProbabilityRoute: NormalProbabilityRoute,
   ProbabilityDistributionRoute: ProbabilityDistributionRoute,
+  GlossaryStatRoute: GlossaryStatRoute,
+  GlossaryIndexRoute: GlossaryIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
