@@ -12,7 +12,8 @@ pnpm dev   # http://localhost:3000
 Before opening a PR, make sure these pass:
 
 ```bash
-npx tsc --noEmit
+pnpm typecheck
+pnpm test
 pnpm build
 ```
 
@@ -27,7 +28,7 @@ Keep the URL free of data: it holds only `run` and `sel` (entry ids). Data lives
 ## Pull requests
 
 - Fork, branch from `main`, keep PRs small and focused.
-- For statistical changes, name the formula or reference you used.
+- For statistical changes, name the formula or reference you used and add a test in `src/shared/stats.test.ts` (or next to the code).
 - Describe what changed and how you checked it (screenshots help for UI).
 
 ## Issues

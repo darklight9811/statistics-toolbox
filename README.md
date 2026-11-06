@@ -24,6 +24,7 @@ Requires Node 20+ and [pnpm](https://pnpm.io).
 ```bash
 pnpm install
 pnpm dev        # http://localhost:3000
+pnpm test       # unit tests for the math
 pnpm build
 ```
 
@@ -33,7 +34,7 @@ Vertical slices under `src/features/*` (one folder per tool, each with `domain.t
 
 ## Contributing
 
-Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). New tool ideas, statistical corrections and translation fixes are especially useful.
+Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) and the [Code of Conduct](CODE_OF_CONDUCT.md). New tool ideas, statistical corrections and translation fixes are especially useful.
 
 ## License
 
