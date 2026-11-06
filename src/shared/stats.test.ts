@@ -74,3 +74,18 @@ describe('stat examples', () => {
     }
   })
 })
+
+describe('entries backup', () => {
+  it('imports a backup file, replacing by id and adding new ones', async () => {
+    const { importEntries, serializeEntries } = await import('#/features/dataset-input/backup')
+    const { runsCollection } = await import('#/features/dataset-input/runs')
+    const file = (text: string) => ({ text: async () => text }) as File
+    const n = await importEntries(file(serializeEntries([{ id: 1, name: 'a', data: '1 2 3', bins: 0 }, { id: 2, data: '4 5', bins: 3 }])))
+    expect(n).toBe(2)
+    await importEntries(file(serializeEntries([{ id: 1, name: 'b', data: '9', bins: 0 }])))
+    expect(runsCollection.get(1)?.name).toBe('b')
+    expect(runsCollection.has(2)).toBe(true)
+    await expect(importEntries(file('{"x":1}'))).rejects.toThrow()
+    await expect(importEntries(file('nope'))).rejects.toThrow()
+  })
+})

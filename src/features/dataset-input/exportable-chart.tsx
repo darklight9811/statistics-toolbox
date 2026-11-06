@@ -92,7 +92,7 @@ async function toPdfBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Blob(parts as BlobPart[], { type: 'application/pdf' })
 }
 
-function download(href: string, name: string) {
+export function download(href: string, name: string) {
   const a = document.createElement('a')
   a.href = href
   a.download = name

@@ -1,7 +1,7 @@
 import { createCollection, localStorageCollectionOptions, useLiveQuery } from '@tanstack/react-db'
 import { z } from 'zod'
 
-const RunSchema = z.object({ id: z.number(), name: z.string().optional(), data: z.string(), bins: z.number() })
+export const RunSchema = z.object({ id: z.number(), name: z.string().optional(), data: z.string(), bins: z.number() })
 export type Run = z.infer<typeof RunSchema>
 
 export const runsCollection = createCollection(

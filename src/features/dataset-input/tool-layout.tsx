@@ -3,6 +3,7 @@ import { useForm } from '@tanstack/react-form'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useEffect, useState, type ReactNode } from 'react'
 import { runsCollection } from './runs'
+import { BackupButtons } from './backup-buttons'
 import { TOOLS } from './tools'
 
 export const card = 'rounded-xl border border-slate-200 bg-white p-3 shadow-sm'
@@ -276,6 +277,7 @@ export function ToolLayout({
                 </ul>
               </>
             )}
+            <BackupButtons runs={runs} />
           </div>
         </aside>
 
