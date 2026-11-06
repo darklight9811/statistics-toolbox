@@ -32,6 +32,10 @@ describe('probability distribution', () => {
     const { mean, sd } = d.stats
     expect(computeRange(d, mean - sd, mean + sd).probability).toBeCloseTo(0.6827, 3)
   })
+  it('has the same stats as the histogram', () => {
+    const v = [1, 2, 2, 3, 3, 3, 4, 4, 5]
+    expect(computeDistribution(v).stats).toMatchObject(computeHistogram(v).stats)
+  })
   it('rejects inverted bounds', () => {
     expect(() => computeRange(d, 5, 1)).toThrow()
   })

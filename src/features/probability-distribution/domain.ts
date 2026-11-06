@@ -13,7 +13,14 @@ export function computeDistribution(values: number[], bins?: number) {
   const variance = values.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1)
   const sd = Math.sqrt(variance)
   if (sd === 0) throw new Error('Todos os valores são iguais: desvio padrão zero')
-  const min = Math.min(...values), max = Math.max(...values)
+  const s = [...values].sort((a, b) => a - b)
+  const min = s[0], max = s[n - 1]
+  const q = (p: number) => {
+    const i = (n - 1) * p, lo = Math.floor(i)
+    return s[lo] + (s[Math.ceil(i)] - s[lo]) * (i - lo)
+  }
+  const skew = s.reduce((a, b) => a + ((b - mean) / sd) ** 3, 0) / n
+  const kurt = s.reduce((a, b) => a + ((b - mean) / sd) ** 4, 0) / n - 3 // excess kurtosis
 
   // empirical density: bars whose total area is 1, comparable with the curve
   const k = bins || Math.ceil(Math.log2(n) + 1) // Sturges' rule
@@ -42,7 +49,7 @@ export function computeDistribution(values: number[], bins?: number) {
     expected: EXPECTED[i],
   }))
 
-  return { bars, curve, rules, coverage, values, stats: { n, mean, sd, variance, min, max } }
+  return { bars, curve, rules, coverage, values, stats: { n, min, max, mean, median: q(0.5), q1: q(0.25), q3: q(0.75), sd, variance, skew, kurt, binWidth: width, bins: k } }
 }
 
 /** P(a < X < b) under the fitted normal and in the data; an empty bound means unbounded. */

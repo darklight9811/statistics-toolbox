@@ -14,11 +14,18 @@ const route = getRouteApi('/probability-distribution')
 
 const LABELS: Record<string, string> = {
   n: 'n',
-  mean: 'média (μ)',
-  sd: 'desvio padrão (σ)',
-  variance: 'variância',
   min: 'mínimo',
   max: 'máximo',
+  mean: 'média (μ)',
+  median: 'mediana',
+  q1: 'Q1',
+  q3: 'Q3',
+  sd: 'desvio padrão (σ)',
+  variance: 'variância',
+  skew: 'assimetria',
+  kurt: 'curtose',
+  binWidth: 'largura da classe',
+  bins: 'nº de classes',
 }
 
 const fmt = (x: number) => +x.toFixed(4)
