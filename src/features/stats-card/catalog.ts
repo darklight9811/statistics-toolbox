@@ -138,6 +138,69 @@ export const STATS: Record<string, { label: string; what: string; use: string; h
     use: 'Poucos pontos fora (esperado: cerca de 5%) sugerem dados compatíveis com a normal; muitos indicam desvio.',
     help: 'Pontos fora das linhas tracejadas.\nlimite = xₚ ± 1,96·s·√(1 + z²/2) / √n\nonde xₚ é a reta ajustada (média + s·z).',
   },
+  spec: {
+    formula: String.raw`LIE \le x \le LSE`,
+    label: 'limites de especificação (LIE/LSE)',
+    what: 'O menor (LIE) e o maior (LSE) valor aceitáveis para o produto ou processo, definidos pelo cliente ou pela engenharia, não pelos dados.',
+    use: 'Servem de régua para dizer se o processo é capaz: o que cai fora deles é refugo ou retrabalho. Ajuste-os para simular o efeito de limites mais apertados ou mais folgados.',
+    help: 'Valores dentro de [LIE; LSE] estão conformes. Pode-se informar só um dos limites.',
+  },
+  sigmaWithin: {
+    formula: String.raw`\hat{\sigma}_w = \frac{\overline{MR}}{1.128},\quad MR_i = |x_i - x_{i-1}|`,
+    label: 'σ dentro (amplitude móvel)',
+    what: 'A variação de curto prazo do processo, estimada pela diferença entre valores consecutivos.',
+    use: 'É o σ usado em Cp e Cpk. Como depende da ordem, informe os dados na sequência em que foram medidos.',
+    help: 'Média das amplitudes móveis (diferença absoluta entre valores consecutivos) dividida por 1,128.',
+  },
+  cp: {
+    formula: String.raw`C_p = \frac{LSE - LIE}{6\,\hat{\sigma}_w}`,
+    label: 'Cp',
+    what: 'A capacidade potencial: quantas vezes a faixa de especificação cabe na variação de curto prazo do processo (6σ).',
+    use: 'Mostra se o processo seria capaz se estivesse centrado. Cp ≥ 1,33 é o mínimo usual. Exige os dois limites.',
+    help: 'Largura da especificação dividida por 6σ de curto prazo.',
+  },
+  cpk: {
+    formula: String.raw`C_{pk} = \min\left(\frac{LSE - \bar{x}}{3\,\hat{\sigma}_w},\ \frac{\bar{x} - LIE}{3\,\hat{\sigma}_w}\right)`,
+    label: 'Cpk',
+    what: 'A capacidade real de curto prazo: como o Cp, mas penaliza o processo descentrado, olhando o limite mais próximo da média.',
+    use: 'Cpk ≥ 1,33 indica processo capaz; entre 1 e 1,33, marginal; abaixo de 1, incapaz. Funciona com apenas um limite.',
+    help: 'Menor distância da média a um limite, medida em 3σ de curto prazo.',
+  },
+  pp: {
+    formula: String.raw`P_p = \frac{LSE - LIE}{6\,s}`,
+    label: 'Pp',
+    what: 'O desempenho potencial: igual ao Cp, mas usando o desvio padrão geral (toda a variação dos dados).',
+    use: 'Compara a especificação com a variação total observada, inclusive deslocamentos entre períodos. Exige os dois limites.',
+    help: 'Largura da especificação dividida por 6 desvios padrão gerais.',
+  },
+  ppk: {
+    formula: String.raw`P_{pk} = \min\left(\frac{LSE - \bar{x}}{3\,s},\ \frac{\bar{x} - LIE}{3\,s}\right)`,
+    label: 'Ppk',
+    what: 'O desempenho real de longo prazo: como o Cpk, mas com o desvio padrão geral.',
+    use: 'Se Ppk for bem menor que Cpk, o processo muda ao longo do tempo (deriva ou instabilidade).',
+    help: 'Menor distância da média a um limite, medida em 3 desvios padrão gerais.',
+  },
+  outObs: {
+    formula: String.raw`\frac{\#\{x_i < LIE \ \text{ou}\ x_i > LSE\}}{n}`,
+    label: 'fora da espec. (observado)',
+    what: 'A fração dos seus valores que ficou fora dos limites de especificação.',
+    use: 'É o resultado real da amostra, sem suposições sobre a distribuição.',
+    help: 'Quantidade de valores abaixo do LIE ou acima do LSE dividida por n.',
+  },
+  outExp: {
+    formula: String.raw`\Phi\!\left(\frac{LIE - \bar{x}}{s}\right) + 1 - \Phi\!\left(\frac{LSE - \bar{x}}{s}\right)`,
+    label: 'fora da espec. (esperado)',
+    what: 'A fração esperada fora da especificação se os dados seguirem a normal ajustada.',
+    use: 'Estima o refugo de longo prazo mesmo quando a amostra não mostra nenhum caso fora. Vale se os dados forem aproximadamente normais.',
+    help: 'Soma das caudas da normal ajustada abaixo do LIE e acima do LSE (áreas vermelhas do gráfico).',
+  },
+  ppm: {
+    formula: String.raw`\mathrm{PPM} = 10^6 \times P(\text{fora da especificação})`,
+    label: 'PPM esperado',
+    what: 'Partes por milhão fora da especificação: quantas peças em um milhão seriam rejeitadas.',
+    use: 'Traduz a fração fora da especificação para uma escala fácil de comparar com metas de qualidade.',
+    help: 'Fração esperada fora da especificação multiplicada por 1.000.000.',
+  },
 }
 
 /** Documentation sections, in reading order (every catalog key appears once). */
@@ -148,10 +211,13 @@ export const GROUPS: { title: string; icon: string; keys: string[] }[] = [
   { title: 'Forma da distribuição', icon: '🏔️', keys: ['skew', 'kurt'] },
   { title: 'Histograma', icon: '📊', keys: ['binWidth', 'bins'] },
   { title: 'Teste de normalidade', icon: '🧪', keys: ['r', 'ad', 'p', 'outside'] },
+  { title: 'Capacidade do processo', icon: '🏭', keys: ['spec', 'sigmaWithin', 'cp', 'cpk', 'pp', 'ppk', 'outObs', 'outExp', 'ppm'] },
 ]
 
 export function formatStat(key: string, v: number) {
   if (key === 'p') return v < 0.001 ? '< 0.001' : v.toFixed(3)
+  if (key === 'outObs' || key === 'outExp') return `${(v * 100).toFixed(2)}%`
+  if (key === 'ppm') return String(Math.round(v))
   return String(+v.toFixed(4))
 }
 

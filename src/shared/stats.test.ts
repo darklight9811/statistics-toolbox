@@ -1,3 +1,4 @@
+import { computeCapability } from '#/features/process-capability/domain'
 import { STATS } from '#/features/stats-card/catalog'
 import { computeAllStats, statExample } from '#/features/stats-card/examples'
 import katex from 'katex'
@@ -89,3 +90,26 @@ describe('entries backup', () => {
     await expect(importEntries(file('nope'))).rejects.toThrow()
   })
 })
+
+describe('process capability', () => {
+  const v = [9, 10, 11, 10, 9, 11, 10, 12, 8, 10]
+  it('Pp = width / 6s and Ppk equals Pp when centred', () => {
+    const { d, stats } = computeCapability(v, 0, d0(v) - 3, d0(v) + 3)
+    expect(stats.pp).toBeCloseTo(6 / (6 * d.stats.sd), 6)
+    expect(stats.ppk).toBeCloseTo(stats.pp, 6)
+  })
+  it('one-sided limit gives Cpk but no Cp; expected out of spec is the normal tail', () => {
+    const { stats, d } = computeCapability(v, 0, null, 12)
+    expect(stats.cp).toBeUndefined()
+    expect(stats.cpk).toBeCloseTo((12 - d.stats.mean) / (3 * stats.sigmaWithin), 6)
+    expect(stats.outObs).toBe(0)
+    expect(stats.outExp).toBeGreaterThan(0)
+  })
+  it('counts observed values outside the limits and rejects inverted limits', () => {
+    expect(computeCapability(v, 0, 9, 11).stats.outObs).toBeCloseTo(0.2, 6) // 8 and 12 out; 9 and 11 are in
+    expect(() => computeCapability(v, 0, 12, 9)).toThrow()
+  })
+})
+function d0(v: number[]) {
+  return v.reduce((a, b) => a + b, 0) / v.length
+}

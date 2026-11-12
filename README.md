@@ -26,6 +26,7 @@ A statistics toolbox (Portuguese UI) built on the TanStack ecosystem.
 | 📉 **Gráfico probabilístico normal** | Blom plotting positions, 95% limit lines, Anderson-Darling A² and p-value |
 | 📦 **Box-plot** | Compare several entries side by side, quartiles, IQR, outliers |
 | 🔔 **Distribuição de probabilidade** | Density vs. fitted normal, P(a < X < b) calculator, 68-95-99.7 coverage |
+| 🏭 **Capacidade do processo** | Cp, Cpk, Pp, Ppk, expected PPM and out-of-spec %, with LIE/LSE limits you can tweak live |
 
 Every tool can export the chart **with its stats** as PNG or PDF.
 
@@ -71,7 +72,8 @@ src/
 │   ├── histogram.tsx             → features/histogram
 │   ├── normal-probability.tsx    → features/normal-probability
 │   ├── box-plot.tsx              → features/box-plot
-│   └── probability-distribution.tsx → features/probability-distribution
+│   ├── probability-distribution.tsx → features/probability-distribution
+│   ├── process-capability.tsx    → features/process-capability (search adds `lie`, `lse`)
 │   └── glossary.index.tsx / glossary.$stat.tsx → features/stats-card/stat-page (docs section: index + one page per statistic, search: run)
 ├── features/
 │   ├── dataset-input/            SHARED slice used by every tool
@@ -85,6 +87,8 @@ src/
 │   ├── normal-probability/       domain.ts + page.tsx
 │   ├── box-plot/                 domain.ts + page.tsx
 │   ├── probability-distribution/ domain.ts + page.tsx
+│   ├── process-capability/       domain.ts + page.tsx (LIE/LSE limits typed live, kept in the URL)
+│   ├── process-capability/       domain.ts + page.tsx (LIE/LSE limits typed live, kept in the URL as `lie`/`lse`)
 │   └── home/                     landing page with a card per tool
 ├── shared/normal.ts              normCdf, reused by several domains
 ├── integrations/tanstack-query/  QueryClient provider and devtools

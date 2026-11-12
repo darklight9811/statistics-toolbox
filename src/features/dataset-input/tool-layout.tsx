@@ -7,6 +7,9 @@ import { BackupButtons } from './backup-buttons'
 import { TOOLS } from './tools'
 
 export const card = 'rounded-xl border border-slate-200 bg-white p-3 shadow-sm'
+/** Compact field used next to charts (range and limit inputs). */
+export const field =
+  'w-28 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
 const input =
   'w-full rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
 

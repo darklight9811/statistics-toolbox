@@ -1,6 +1,7 @@
 import { computeBoxPlot } from '../box-plot/domain'
 import { computeHistogram } from '../histogram/domain'
 import { computeNormalProbability } from '../normal-probability/domain'
+import { computeCapability } from '../process-capability/domain'
 
 const f = (x: number) => String(+x.toFixed(4))
 /** Values as a LaTeX list: all of them, or the first and last few with an ellipsis. */
@@ -8,13 +9,22 @@ const terms = (a: number[], sep: string, fn: (v: number) => string = f) =>
   a.length <= 6 ? a.map(fn).join(sep) : `${a.slice(0, 3).map(fn).join(sep)}${sep}\\dots${sep}${fn(a[a.length - 1])}`
 
 /** Every statistic of the app for one dataset, in the shape the worked examples need. */
-export function computeAllStats(values: number[], bins: number) {
+export function computeAllStats(values: number[], bins: number, lie?: number, lse?: number) {
   if (values.length < 2) return null
   const h = computeHistogram(values, bins).stats
   const box = computeBoxPlot([{ label: '', values }]).summaries[0]
   const np = values.length >= 3 ? computeNormalProbability(values) : null
   const s = [...values].sort((a, b) => a - b)
-  return { ...h, variance: h.sd ** 2, iqr: box.iqr, outliers: box.outliers, np, s, manualBins: bins > 0 }
+  // capability needs limits: without any, the example uses x̄ ± 4s so it always has something to show
+  const given = lie !== undefined || lse !== undefined
+  const spec = given ? { lie: lie ?? null, lse: lse ?? null } : { lie: +(h.mean - 4 * h.sd).toFixed(2), lse: +(h.mean + 4 * h.sd).toFixed(2) }
+  let cap: ReturnType<typeof computeCapability> | null = null
+  try {
+    cap = computeCapability(values, bins, spec.lie, spec.lse)
+  } catch {
+    // sd = 0 or inverted limits: capability examples are simply unavailable
+  }
+  return { ...h, variance: h.sd ** 2, iqr: box.iqr, outliers: box.outliers, np, s, manualBins: bins > 0, cap, spec, specGiven: given, values }
 }
 
 type All = NonNullable<ReturnType<typeof computeAllStats>>
@@ -102,8 +112,74 @@ export function statExample(key: string, a: All): string | null {
       }
       return `\\text{limite}_i = \\bar{x} + s\\,z_i \\pm 1.96\\cdot ${f(sd)}\\cdot\\frac{\\sqrt{1+z_i^2/2}}{\\sqrt{${n}}}\n\\text{pontos fora: } ${st.outside} \\text{ de } ${n}`
     }
+    case 'spec':
+    case 'sigmaWithin':
+    case 'cp':
+    case 'cpk':
+    case 'pp':
+    case 'ppk':
+    case 'outObs':
+    case 'outExp':
+    case 'ppm':
+      return capabilityExample(key, a)
   }
   return null
+}
+
+function capabilityExample(key: string, a: All): string {
+  const { cap, spec, n, mean, sd, values } = a
+  if (!cap) return '\\text{Sem variação nos dados ou limites invertidos: não é possível calcular.}'
+  const { lie, lse } = spec
+  const st = cap.stats
+  const lim = `LIE = ${lie === null ? '\\text{—}' : f(lie)},\\quad LSE = ${lse === null ? '\\text{—}' : f(lse)}`
+  const note = a.specGiven ? [] : ['\\text{(limites de exemplo: } \\bar{x} \\pm 4s \\text{)}']
+  const w = st.sigmaWithin
+  // C_pk-style ratio for one side, with numbers filled in
+  const side = (name: string, num: string, val: number, den: string) => `${name} = \\frac{${num}}{3\\cdot ${den}} = ${f(val)}`
+  const indexLines = (pre: 'C' | 'P', sigma: number, sym: string) => {
+    const lines: string[] = []
+    if (lie !== null && lse !== null) lines.push(`${pre}_p = \\frac{LSE-LIE}{6\\,${sym}} = \\frac{${f(lse)}-${f(lie)}}{6\\cdot ${f(sigma)}} = ${f((lse - lie) / (6 * sigma))}`)
+    if (lse !== null) lines.push(side(`${pre}_{pu}`, `${f(lse)}-${f(mean)}`, (lse - mean) / (3 * sigma), f(sigma)))
+    if (lie !== null) lines.push(side(`${pre}_{pl}`, `${f(mean)}-${f(lie)}`, (mean - lie) / (3 * sigma), f(sigma)))
+    return lines
+  }
+  switch (key) {
+    case 'spec': {
+      const out = values.filter((v) => (lie !== null && v < lie) || (lse !== null && v > lse))
+      return [...note, lim, `\\text{valores fora: } ${out.length ? terms(out, ',\\ ') : '\\text{nenhum}'}`].join('\n')
+    }
+    case 'sigmaWithin': {
+      const mr = values.slice(1).map((v, i) => Math.abs(v - values[i]))
+      return [
+        'MR_i = |x_i - x_{i-1}|',
+        `\\overline{MR} = \\frac{${terms(mr, '+')}}{${n - 1}} = ${f(mr.reduce((x, y) => x + y, 0) / (n - 1))}`,
+        `\\hat{\\sigma}_w = \\frac{${f(mr.reduce((x, y) => x + y, 0) / (n - 1))}}{1.128} = ${f(w)}`,
+      ].join('\n')
+    }
+    case 'cp':
+      return lie !== null && lse !== null ? [...note, lim, indexLines('C', w, '\\hat{\\sigma}_w')[0]].join('\n') : '\\text{O Cp exige os dois limites (LIE e LSE).}'
+    case 'cpk':
+      return [...note, lim, `\\hat{\\sigma}_w = ${f(w)}`, ...indexLines('C', w, '\\hat{\\sigma}_w').slice(lie !== null && lse !== null ? 1 : 0), `C_{pk} = \\min(\\dots) = ${f(st.cpk)}`].join('\n')
+    case 'pp':
+      return lie !== null && lse !== null ? [...note, lim, indexLines('P', sd, 's')[0]].join('\n') : '\\text{O Pp exige os dois limites (LIE e LSE).}'
+    case 'ppk':
+      return [...note, lim, `s = ${f(sd)}`, ...indexLines('P', sd, 's').slice(lie !== null && lse !== null ? 1 : 0), `P_{pk} = \\min(\\dots) = ${f(st.ppk)}`].join('\n')
+    case 'outObs': {
+      const k = Math.round(st.outObs * n)
+      return [...note, lim, `\\frac{${k}}{${n}} = ${f(st.outObs)} = ${f(st.outObs * 100)}\\%`].join('\n')
+    }
+    case 'outExp': {
+      const zs = [lie === null ? null : (lie - mean) / sd, lse === null ? null : (lse - mean) / sd]
+      return [
+        ...note,
+        lim,
+        `\\bar{x} = ${f(mean)},\\quad s = ${f(sd)}`,
+        `P = ${zs[0] === null ? '' : `\\Phi(${f(zs[0])})`}${zs[0] !== null && zs[1] !== null ? ' + ' : ''}${zs[1] === null ? '' : `\\left(1-\\Phi(${f(zs[1])})\\right)`} = ${f(st.outExp)} = ${f(st.outExp * 100)}\\%`,
+      ].join('\n')
+    }
+    default: // ppm
+      return [...note, lim, `\\mathrm{PPM} = 10^6 \\times ${f(st.outExp)} = ${Math.round(st.ppm)}`].join('\n')
+  }
 }
 
 /** Small random dataset for examples when no entry is open. */

@@ -52,7 +52,7 @@ export function GlossaryIndexPage({ run }: { run?: number }) {
 }
 
 /** One documentation page per statistic, with a worked example from the open entry's data. */
-export function StatPage({ stat, run }: { stat: string; run?: number }) {
+export function StatPage({ stat, run, lie, lse }: { stat: string; run?: number; lie?: number; lse?: number }) {
   const meta = STATS[stat]
   const { data, bins, name } = useEntryValue(run)
 
@@ -64,12 +64,12 @@ export function StatPage({ stat, run }: { stat: string; run?: number }) {
     const values = hasData ? parseNumbers(data) : random
     if (!values) return null
     try {
-      const all = computeAllStats(values, hasData ? bins : 0)
+      const all = computeAllStats(values, hasData ? bins : 0, lie, lse)
       return all && statExample(stat, all)
     } catch {
       return null
     }
-  }, [stat, data, bins, hasData, random])
+  }, [stat, data, bins, hasData, random, lie, lse])
 
   if (!meta)
     return (

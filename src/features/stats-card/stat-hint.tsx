@@ -8,7 +8,7 @@ const W = 272 // tooltip width in px, used to keep it inside the viewport
  * A statistic's label: hover/focus shows how to calculate it, click opens its glossary page
  * with a worked example for entry `run`. Tooltip is `fixed` so table/overflow parents never clip it.
  */
-export function StatHint({ k, run, children }: { k: string; run?: number; children?: ReactNode }) {
+export function StatHint({ k, run, lie, lse, children }: { k: string; run?: number; lie?: number; lse?: number; children?: ReactNode }) {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null)
   const meta = STATS[k]
   if (!meta) return <>{children}</>
@@ -20,7 +20,7 @@ export function StatHint({ k, run, children }: { k: string; run?: number; childr
     <Link
       to="/glossary/$stat"
       params={{ stat: k }}
-      search={{ run }}
+      search={{ run, lie, lse }}
       className="cursor-pointer underline decoration-slate-300 decoration-dotted underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
       onMouseEnter={show}
       onFocus={show}

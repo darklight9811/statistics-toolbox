@@ -4,4 +4,5 @@ export const TOOLS = [
   { to: '/normal-probability', icon: '📉', label: 'Gráfico probabilístico normal', desc: 'Verifique visualmente se os dados seguem uma distribuição normal.' },
   { to: '/box-plot', icon: '📦', label: 'Box-plot', desc: 'Compare a distribuição de várias entradas lado a lado.' },
   { to: '/probability-distribution', icon: '🔔', label: 'Distribuição de probabilidade', desc: 'Densidade observada, curva normal ajustada e regra 68-95-99,7.' },
+  { to: '/process-capability', icon: '🏭', label: 'Capacidade do processo', desc: 'Meça Cp, Cpk, Pp e Ppk e ajuste os limites de especificação (LIE/LSE).' },
 ] as const

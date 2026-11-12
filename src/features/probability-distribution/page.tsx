@@ -7,7 +7,7 @@ import { tooltip } from '@tanstack/charts/tooltip'
 import { ExportableChart } from '../dataset-input/exportable-chart'
 import { parseNumbers } from '../dataset-input/parse'
 import { useEntryValue } from '../dataset-input/runs'
-import { ToolLayout, card } from '../dataset-input/tool-layout'
+import { ToolLayout, card, field } from '../dataset-input/tool-layout'
 import { StatsCard } from '../stats-card/stats-card'
 import { statRows } from '../stats-card/catalog'
 import { computeDistribution, computeRange } from './domain'
@@ -17,8 +17,6 @@ const route = getRouteApi('/probability-distribution')
 const fmt = (x: number) => +x.toFixed(4)
 const pct = (x: number) => `${(x * 100).toFixed(2)}%`
 const bound = (s: string) => (s.trim() === '' ? null : Number(s.replace(',', '.')))
-const field =
-  'w-28 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm shadow-sm outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200'
 
 export function ProbabilityDistributionPage() {
   const { run, sel } = route.useSearch()
